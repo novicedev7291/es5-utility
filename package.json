@@ -1,0 +1,23 @@
+{
+  "name": "hello-cli",
+  "version": "1.0.0",
+  "description": "Utility application to explore js features",
+  "main": "bin/index.js",
+  "author": "kuldeepyadav7291@gmail.com",
+  "license": "MIT",
+  "bin": {
+    "utility": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"No tests specified\" && exit 1",
+    "start": "babel-node --presets es2015 index.js"
+  },
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "lodash": "^4.17.15"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-object-rest-spread": "^6.26.0"
+  }
+}
