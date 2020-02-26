@@ -34,15 +34,112 @@ customizationInfo = Array.from(customizationInfo, (v, i) => {
     }
 )
 
-let items = 
+let products = Array.from(items, (value, index) => {
+    const { itemId, itemName, itemDescription } = value;
+    return {
+        id: itemId,
+        itemName,
+        itemDescription
+    };
+});
+
+products = _.uniqBy(products, "itemName");
+
+let categoryIndexMap = {};
+let productIndexMap = {};
+let customizationIndexMap = {};
+
+const findMathcingCustomization = name => {
+    if(_.has(customizationIndexMap, name)) {
+        return customizationIndexMap[name];
+    }
+    let cId = undefined;
+    _.each(customizationInfo, c => {
+        if(c.itemName === name){
+            customizationIndexMap[name] = c.id;
+            cId = c.id;
+            return false;
+        }
+    });
+    return cId;
+}
+
+const findMatchingCategory = name => {
+    if ( _.has(categoryIndexMap, name) ){
+        return categoryIndexMap[name];
+    }
+    let categoryId = undefined;
+    _.each(categoryObjList, category => {
+        if(category.itemCategory === name) {
+            categoryIndexMap[name] = category.id;
+            categoryId = category.id;
+            return false;
+        }
+    });
+    return categoryId;
+};
+
+const findMatchingProduct = (name, description) => {
+    let key = name;
+    if(_.has(productIndexMap, key)){
+        return productIndexMap[key];
+    }
+
+    let productId = undefined;
+    _.each(products, product => {
+        if(product.itemName === name){
+            productIndexMap[key] = product.id;
+            productId = product.id;
+            return false;
+        }
+    });
+    return productId;
+};
+
+let relations = {};
+
+_.each(items, item => {
+    let categoryId = findMatchingCategory(item.itemCategory);
+    if(!categoryId) {
+        console.log(categoryId);
+        return;
+    }
+    let productId = findMatchingProduct(item.itemName, item.itemDescription);
+    console.log(productId + '=>' + item.itemName +'_'+ item.itemDescription);
+    let customizations = [];
+
+    _.each(item.customization, c => {
+        let cId = findMathcingCustomization(c.itemName);
+        customizations.push( {
+            id: cId,
+            itemPrice: c.itemPrice
+        });
+    });
+
+    let itemsArray = relations[categoryId];
+    if (!itemsArray){
+        itemsArray = [];
+        relations[categoryId] = itemsArray;
+    }
+    if(productId) {
+        itemsArray.push({
+            id: productId,
+            itemPrice: item.itemPrice,
+            customizations: customizations
+        });
+    }
+});
 
 let gygSchema = {};
 
+gygSchema["products"] = _.mapKeys(products, "id");
 gygSchema["categories"] = _.mapKeys(categoryObjList, "id");
 gygSchema["customization"] = _.mapKeys(customizationInfo, "id");
+gygSchema["relations"] = relations;
 
+//console.log(productIndexMap);
+//console.log(productIndexMap['Slow Roasted Pork (Spicy)'.trim()]);
 
-
-console.log(gygSchema);
+console.log(JSON.stringify(gygSchema));
 
 
